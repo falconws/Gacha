@@ -149,7 +149,9 @@ public class GachaCommand {
 
       /*現在のお金から1000引く */
 
-	  
+      /*1000引いたぞのメッセージ表示*/
+
+	    /*お金がなかったらメッセージを表示してリターン*/
 
       /*名前でチケットの受取は使わない
       Player player = gacha.getServer().getPlayer(playerName);
