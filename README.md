@@ -1,4 +1,4 @@
-I'ts　Gache is fork
+It's　Gache is fork
 プログラム勉強中・・・つД`)ｸﾞｽﾝ
 ↓オリジナルとの変更点。/gacha ticket @p  で自分にチケットが発券できる。尚 /gacha ticket [name] は使えません。
 
