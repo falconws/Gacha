@@ -1,3 +1,7 @@
+It's　Gache is fork
+プログラム勉強中・・・つД`)ｸﾞｽﾝ
+↓オリジナルとの変更点。/gacha ticket @p  で自分にチケットが発券できる。尚 /gacha ticket [name] は使えません。
+
 # Gacha
 [![Spigot 1.13.2](https://img.shields.io/badge/Spigot-1.13.2-brightgreen.svg)](https://www.spigotmc.org/wiki/spigot/)
 [![GitHub release](https://img.shields.io/github/release/kubotan/Gacha.svg)](https://github.com/kubotan/Gacha/releases)
