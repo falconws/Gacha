@@ -7,6 +7,7 @@ import java.io.OutputStream;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.logging.Level;
+import java.util.logging.Logger;
 
 import org.apache.commons.io.IOUtils;
 import org.bukkit.command.Command;
@@ -14,16 +15,12 @@ import org.bukkit.command.CommandSender;
 import org.bukkit.command.ConsoleCommandSender;
 import org.bukkit.event.HandlerList;
 import org.bukkit.plugin.PluginManager;
-import org.bukkit.plugin.java.JavaPlugin;
-
-import java.util.logging.Logger;
 import org.bukkit.plugin.RegisteredServiceProvider;
 import org.bukkit.plugin.java.JavaPlugin;
-import java.util.logging.Logger;
-import net.milkbowl.vault.chat.Chat;
+
 import net.milkbowl.vault.economy.Economy;
-import net.milkbowl.vault.economy.EconomyResponse;
-import net.milkbowl.vault.permission.Permission;
+
+
 /*
  * Gacha
  * @license    LGPLv3
@@ -35,8 +32,9 @@ public class Gacha extends JavaPlugin{
   private GachaDatabase database;
   private GachaCommand command;
   private GachaListener listener;
-  private static Economy econ = null;
   private static final Logger log = Logger.getLogger("Minecraft");
+  private static Economy econ = null;
+
   /**
    * Get GachaDatabase instance.
    */
@@ -62,74 +60,74 @@ public class Gacha extends JavaPlugin{
    * JavaPlugin method onEnable.
    */
   @Override
-  public void onEnable(){
-    try{
-      getLogger().log(Level.INFO, "The Plugin Has Been Enabled!");
+	public void onEnable() {
+		try {
+			getLogger().log(Level.INFO, "The Plugin Has Been Enabled!");
 
-      /*setupEconomy*/
-      if (!setupEconomy() ) {
-        log.severe(String.format("[%s] - Disabled due to no Vault dependency found!", getDescription().getName()));
-        getServer().getPluginManager().disablePlugin(this);
-        return;
-      }
-      
-      // If there is no setting file, it is created
-      if(!getDataFolder().exists()){
-        getDataFolder().mkdir();
-      }
-      
-      File configFile = new File(getDataFolder(), "config.yml");
-      if(!configFile.exists()){
-        saveDefaultConfig();
-      }
+			// If there is no setting file, it is created
+			if (!getDataFolder().exists()) {
+				getDataFolder().mkdir();
+			}
 
-      // copy languge template
-      ArrayList<String> langFileNameList = new ArrayList<String>(
-        Arrays.asList(
-          "config_jp.yml"
-          // ,"config_fr.yml"   // add here language
-        )
-      );
-      for (String curFileName : langFileNameList) {
-        File configFileTemplate = new File(getDataFolder(), curFileName);
-        InputStream in = getResource(curFileName);
-        OutputStream out = new FileOutputStream(configFileTemplate);
-        IOUtils.copy(in, out);
-        out.close();
-        in.close();
-      }
-      
-      // Initialize the database.
-      database = new GachaDatabase(this);
-      database.initialize();
+			File configFile = new File(getDataFolder(), "config.yml");
+			if (!configFile.exists()) {
+				saveDefaultConfig();
+			}
 
-      // Register event listener.
-      PluginManager pm = getServer().getPluginManager();
-      HandlerList.unregisterAll(this);    // clean up
-      listener = new GachaListener(this);
-      pm.registerEvents(listener, this);
+			// copy languge template
+			ArrayList<String> langFileNameList = new ArrayList<String>(Arrays.asList("config_jp.yml"
+			// ,"config_fr.yml" // add here language
+			));
+			for (String curFileName : langFileNameList) {
+				File configFileTemplate = new File(getDataFolder(), curFileName);
+				InputStream in = getResource(curFileName);
+				OutputStream out = new FileOutputStream(configFileTemplate);
+				IOUtils.copy(in, out);
+				out.close();
+				in.close();
+			}
 
-      // Instance prepared of GachaCommand.
-      command = new GachaCommand(this);
+			// Initialize the database.
+			database = new GachaDatabase(this);
+			database.initialize();
 
-    } catch (Exception e){
-      GachaUtility.logStackTrace(e);
-    }
-  }
-  private boolean setupEconomy() {
-    if (getServer().getPluginManager().getPlugin("Vault") == null) {
-        return false;
-    }
-    RegisteredServiceProvider<Economy> rsp = getServer().getServicesManager().getRegistration(Economy.class);
-    if (rsp == null) {
-        return false;
-    }
-    econ = rsp.getProvider();
-    return econ != null;
-  }
-  public static Economy getEconomy() {
-    return econ;
-  }
+			// Register event listener.
+			PluginManager pm = getServer().getPluginManager();
+			HandlerList.unregisterAll(this); // clean up
+			listener = new GachaListener(this);
+			pm.registerEvents(listener, this);
+
+			// Instance prepared of GachaCommand.
+			command = new GachaCommand(this);
+
+		} catch (Exception e) {
+			GachaUtility.logStackTrace(e);
+		}
+		
+		/* setupEconomy */
+		if (!setupEconomy()) {
+			log.severe(String.format("[%s] - Disabled due to no Vault dependency found!", getDescription().getName()));
+			getServer().getPluginManager().disablePlugin(this);
+			return;
+		}
+	}
+  
+	private boolean setupEconomy() {
+		if (getServer().getPluginManager().getPlugin("Vault") == null) {
+			return false;
+		}
+		RegisteredServiceProvider<Economy> rsp = getServer().getServicesManager().getRegistration(Economy.class);
+		if (rsp == null) {
+			return false;
+		}
+		econ = rsp.getProvider();
+		return econ != null;
+	}
+
+	public static Economy getEconomy() {
+		return econ;
+	}
+
   /**
    * JavaPlugin method onCommand.
    * 
@@ -169,7 +167,7 @@ public class Gacha extends JavaPlugin{
           
         case "ticket":
           if((sender instanceof ConsoleCommandSender) || sender.isOp()) {
-            command.ticket();
+            command.ticket(econ);
             hideUseageFlag = true;
           }
           break;

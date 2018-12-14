@@ -5,20 +5,12 @@ import java.util.List;
 
 import org.bukkit.ChatColor;
 import org.bukkit.Material;
-import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
 
-
-import org.bukkit.plugin.RegisteredServiceProvider;
-import org.bukkit.plugin.java.JavaPlugin;
-import java.util.logging.Logger;
-import net.milkbowl.vault.chat.Chat;
 import net.milkbowl.vault.economy.Economy;
-import net.milkbowl.vault.economy.EconomyResponse;
-import net.milkbowl.vault.permission.Permission;
 /*
  * FrameGuardCommand
  * @license    LGPLv3
@@ -32,18 +24,18 @@ public class GachaCommand {
   private String[] args;
   protected static final String META_CHEST = "gacha.chest";
   protected static final String FORMAT_TICKET_CODE = "GACHA CODE:%s";
-  private static Economy econ = null;
+
   /**
    * Constructor of GachaCommand.
    * @param Gacha gacha
    */
-  public GachaCommand(Gacha gacha) {
-    try{
-      this.gacha = gacha;
-    } catch (Exception e){
-      GachaUtility.logStackTrace(e);
-    }
-  }
+	public GachaCommand(Gacha gacha) {
+		try {
+			this.gacha = gacha;
+		} catch (Exception e) {
+			GachaUtility.logStackTrace(e);
+		}
+	}
 
   /**
    * Initialize
@@ -132,64 +124,63 @@ public class GachaCommand {
    * Processing of command ticket.
    * @return boolean true:Success false:Failure
    */
-  public boolean ticket() {
-    if(args.length != 2) {
-      return false;
-    }
-    
-    String playerName = args[1];
-      /* プレーヤ名が@pだったら */
-	  if ("@p".equals(playerName)) {
-      Player player = (Player) sender;
-	    playerName = sender.getName();
-      /*現在のお金を表示*/
-      /*エラー*/
-      sender.sendMessage(String.format("You have %s", econ.format(econ.getBalance(player.getName()))));
-      /*現在のお金が1000以上あったら*/
+	public boolean ticket(Economy econ) {
+		if (args.length != 2) {
+			return false;
+		}
 
-      /*現在のお金から1000引く */
+		String playerName = args[1];
+		/* プレーヤ名が@pだったら */
+		if ("@p".equals(playerName)) {
+			Player player = (Player) sender;
+			playerName = sender.getName();
+			/* 現在のお金を表示 */
+			/* エラー */
+			sender.sendMessage(String.format("You have %s", econ.format(econ.getBalance(player))));
+			/* 現在のお金が1000以上あったら */
 
-      /*1000引いたぞのメッセージ表示*/
+			/* 現在のお金から1000引く */
 
-	    /*お金がなかったらメッセージを表示してリターン*/
+			/* 1000引いたぞのメッセージ表示 */
 
-      /*名前でチケットの受取は使わない
-      Player player = gacha.getServer().getPlayer(playerName);
-      if(player == null) {
-        return false;
-      }
-      */
+			/* お金がなかったらメッセージを表示してリターン */
 
-      /*チケットの発券機能*/
+			/*
+			 * 名前でチケットの受取は使わない Player player = gacha.getServer().getPlayer(playerName);
+			 * if(player == null) { return false; }
+			 */
 
-      int emptySlot = player.getInventory().firstEmpty();
-      if (emptySlot == -1) {
-        // not empty
-        return false;
-      }
+			/* チケットの発券機能 */
 
-      String ticketCode = gacha.getDatabase().getTicket();
-      if(ticketCode == null) {
-        GachaUtility.sendMessage(sender, "Failure generate ticket code.");
-        return false;
-      }
-    
-      ItemStack ticket = new ItemStack(Material.PAPER, 1);
-      ItemMeta im = ticket.getItemMeta();
-      im.setDisplayName(ChatColor.translateAlternateColorCodes('&', gacha.getConfig().getString("ticket-display-name")));
-      ArrayList<String> lore = new ArrayList<String>();
-      lore.add(ChatColor.translateAlternateColorCodes('&', gacha.getConfig().getString("ticket-lore1")));
-      lore.add(ChatColor.translateAlternateColorCodes('&', gacha.getConfig().getString("ticket-lore2")));
-      lore.add(String.format(FORMAT_TICKET_CODE, ticketCode));
-      im.setLore(lore);
-      ticket.setItemMeta(im);
-      player.getInventory().setItem(emptySlot, ticket);
-    
-      GachaUtility.sendMessage(sender, "Issue a ticket. player_name=" + playerName);
-      return true;
-    }
-    return true;
-  }
+			int emptySlot = player.getInventory().firstEmpty();
+			if (emptySlot == -1) {
+				// not empty
+				return false;
+			}
+
+			String ticketCode = gacha.getDatabase().getTicket();
+			if (ticketCode == null) {
+				GachaUtility.sendMessage(sender, "Failure generate ticket code.");
+				return false;
+			}
+
+			ItemStack ticket = new ItemStack(Material.PAPER, 1);
+			ItemMeta im = ticket.getItemMeta();
+			im.setDisplayName(
+					ChatColor.translateAlternateColorCodes('&', gacha.getConfig().getString("ticket-display-name")));
+			ArrayList<String> lore = new ArrayList<String>();
+			lore.add(ChatColor.translateAlternateColorCodes('&', gacha.getConfig().getString("ticket-lore1")));
+			lore.add(ChatColor.translateAlternateColorCodes('&', gacha.getConfig().getString("ticket-lore2")));
+			lore.add(String.format(FORMAT_TICKET_CODE, ticketCode));
+			im.setLore(lore);
+			ticket.setItemMeta(im);
+			player.getInventory().setItem(emptySlot, ticket);
+
+			GachaUtility.sendMessage(sender, "Issue a ticket. player_name=" + playerName);
+			return true;
+		}
+		return true;
+	}
 
   /**
    * Processing of command reload.
