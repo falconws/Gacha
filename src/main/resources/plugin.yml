@@ -3,6 +3,7 @@ version: 1.0
 description: gacha.
 author: kubotan
 main: space.gorogoro.gacha.Gacha
+depend: [Vault]
 
 commands:
   gacha:

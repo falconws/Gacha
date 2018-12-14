@@ -16,6 +16,14 @@ import org.bukkit.event.HandlerList;
 import org.bukkit.plugin.PluginManager;
 import org.bukkit.plugin.java.JavaPlugin;
 
+import java.util.logging.Logger;
+import org.bukkit.plugin.RegisteredServiceProvider;
+import org.bukkit.plugin.java.JavaPlugin;
+import java.util.logging.Logger;
+import net.milkbowl.vault.chat.Chat;
+import net.milkbowl.vault.economy.Economy;
+import net.milkbowl.vault.economy.EconomyResponse;
+import net.milkbowl.vault.permission.Permission;
 /*
  * Gacha
  * @license    LGPLv3
@@ -27,7 +35,8 @@ public class Gacha extends JavaPlugin{
   private GachaDatabase database;
   private GachaCommand command;
   private GachaListener listener;
-
+  private static Economy econ = null;
+  private static final Logger log = Logger.getLogger("Minecraft");
   /**
    * Get GachaDatabase instance.
    */
@@ -57,6 +66,13 @@ public class Gacha extends JavaPlugin{
     try{
       getLogger().log(Level.INFO, "The Plugin Has Been Enabled!");
 
+      /*setupEconomy*/
+      if (!setupEconomy() ) {
+        log.severe(String.format("[%s] - Disabled due to no Vault dependency found!", getDescription().getName()));
+        getServer().getPluginManager().disablePlugin(this);
+        return;
+      }
+      
       // If there is no setting file, it is created
       if(!getDataFolder().exists()){
         getDataFolder().mkdir();
@@ -100,7 +116,20 @@ public class Gacha extends JavaPlugin{
       GachaUtility.logStackTrace(e);
     }
   }
-
+  private boolean setupEconomy() {
+    if (getServer().getPluginManager().getPlugin("Vault") == null) {
+        return false;
+    }
+    RegisteredServiceProvider<Economy> rsp = getServer().getServicesManager().getRegistration(Economy.class);
+    if (rsp == null) {
+        return false;
+    }
+    econ = rsp.getProvider();
+    return econ != null;
+  }
+  public static Economy getEconomy() {
+    return econ;
+  }
   /**
    * JavaPlugin method onCommand.
    * 

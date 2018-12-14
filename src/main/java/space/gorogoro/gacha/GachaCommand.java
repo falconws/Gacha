@@ -144,7 +144,7 @@ public class GachaCommand {
 	    playerName = sender.getName();
       /*現在のお金を表示*/
       /*エラー*/
-      /*sender.sendMessage(String.format("You have %s", econ.format(econ.getBalance(player.getName()))));*/
+      sender.sendMessage(String.format("You have %s", econ.format(econ.getBalance(player.getName()))));
       /*現在のお金が1000以上あったら*/
 
       /*現在のお金から1000引く */
