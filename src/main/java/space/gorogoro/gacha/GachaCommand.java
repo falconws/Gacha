@@ -75,7 +75,7 @@ public class GachaCommand {
       GachaUtility.sendMessage(sender, "Record not found.");
       return true;
     }
-    
+
     for(String msg: glist) {
       GachaUtility.sendMessage(sender, msg);
     }
@@ -90,11 +90,11 @@ public class GachaCommand {
     if(args.length != 2) {
       return false;
     }
-    
+
     if(!(sender instanceof Player)) {
       return false;
     }
-    
+
     String gachaName = args[1];
     if(gacha.getDatabase().getGacha(gachaName) == null) {
       GachaUtility.sendMessage(sender, "Record not found. gacha_name=" + gachaName);
@@ -104,7 +104,7 @@ public class GachaCommand {
     GachaUtility.sendMessage(sender, "Please punching(right click) a chest of gachagacha. gacha_name=" + gachaName);
     return true;
   }
-  
+
   /**
    * Processing of command delete.
    * @return boolean true:Success false:Failure
@@ -113,7 +113,7 @@ public class GachaCommand {
     if(args.length != 2) {
       return false;
     }
-    
+
     String gachaName = args[1];
     if(gacha.getDatabase().deleteGacha(gachaName)) {
       GachaUtility.sendMessage(sender, "Deleted. gacha_name=" + gachaName);
@@ -127,7 +127,7 @@ public class GachaCommand {
    * @return boolean true:Success false:Failure
    */
 	public boolean ticket(Economy econ) {
-		
+
 		if (args.length != 2) {
 			return false;
 		}
@@ -137,14 +137,14 @@ public class GachaCommand {
 		if ("@p".equals(playerName)) {
 			Player player = (Player) sender;
 			playerName = sender.getName();
-			
+
 			Inventory inv = player.getInventory();
-			int Slot = inv.firstEmpty();
-			if ( Slot == -1) { // 空のスロットがない
+			int slot = inv.firstEmpty();
+			if ( slot == -1) { // 空のスロットがない
 				sender.sendMessage(String.format("エラー：イベントリを空けてください！"));
 				return false;
 			}
-			
+
 			/* 現在のお金を表示 */
 			/* エラー */
 			sender.sendMessage(String.format("現在の現金 %s", econ.format(econ.getBalance(player))));
@@ -160,7 +160,7 @@ public class GachaCommand {
 			}else {
 				sender.sendMessage(String.format("$1000持っていません！"));
 				return false;
-				
+
 			}
 
 			/*
