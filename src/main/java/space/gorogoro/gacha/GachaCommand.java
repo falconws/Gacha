@@ -7,6 +7,7 @@ import org.bukkit.ChatColor;
 import org.bukkit.Material;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
+import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
 
@@ -126,6 +127,7 @@ public class GachaCommand {
    * @return boolean true:Success false:Failure
    */
 	public boolean ticket(Economy econ) {
+		
 		if (args.length != 2) {
 			return false;
 		}
@@ -135,6 +137,14 @@ public class GachaCommand {
 		if ("@p".equals(playerName)) {
 			Player player = (Player) sender;
 			playerName = sender.getName();
+			
+			Inventory inv = player.getInventory();
+			int Slot = inv.firstEmpty();
+			if ( Slot == -1) { // 空のスロットがない
+				sender.sendMessage(String.format("エラー：イベントリを空けてください！"));
+				return false;
+			}
+			
 			/* 現在のお金を表示 */
 			/* エラー */
 			sender.sendMessage(String.format("現在の現金 %s", econ.format(econ.getBalance(player))));
