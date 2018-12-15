@@ -1,7 +1,12 @@
 It's　Gache is fork
 プログラム勉強中・・・つД`)ｸﾞｽﾝ
-↓オリジナルとの変更点。/gacha ticket @p  で自分にチケットが発券できる。尚 /gacha ticket [name] は使えません。
-
+↓オリジナルとの変更点。/gacha ticket @p  で自分にチケットが$1000で発券できる。尚 /gacha ticket [name] は使えません。
+尚、経済の設定のため、EssensalX plugin　Vault plugin　が必要です。
+```
+necessary
+EssensalX plugin
+Vault plugin
+```
 # Gacha
 [![Spigot 1.13.2](https://img.shields.io/badge/Spigot-1.13.2-brightgreen.svg)](https://www.spigotmc.org/wiki/spigot/)
 [![GitHub release](https://img.shields.io/github/release/kubotan/Gacha.svg)](https://github.com/kubotan/Gacha/releases)
@@ -44,6 +49,7 @@ gacha.list - /gacha list
 gacha.modify - /gacha modify
 gacha.delete - /gacha delete
 gacha.create - create gacha by signbord
+gacha.ticket - To issue a tikcket 
 ```
 Other operation is op.
 Issue ticket is console or op.
@@ -77,7 +83,8 @@ mvn package
   /gacha modify gacha1  
   
 →ガチャガチャ券を発行する  
-  /gacha ticket kubotan  
+  /gacha ticket @p
+  チケットの価格は$1000に設定されています。
   
 →右手にガチャガチャ券を持って、先ほど貼り付けた看板を右クリックすると、  
   ガチャガチャ券と引き換えに、ガチャ用チェストのどれかアイテム１つがランダムでゲットできます。  
