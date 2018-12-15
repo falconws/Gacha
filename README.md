@@ -40,7 +40,7 @@ Note: It is recommended that you use a protection plug-in such as LWC or WorldGu
 /gacha list - List all gacha
 /gacha modify <gacha_name> - Modify a gacha
 /gacha delete <gacha_name> - Delete a gacha
-/gacha ticket <player_name> - Issue a ticket
+/gacha ticket @p - Issue a ticket
 ```
 
 # Permission
