@@ -11,6 +11,7 @@ import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
 
 import net.milkbowl.vault.economy.Economy;
+import net.milkbowl.vault.economy.EconomyResponse;
 /*
  * FrameGuardCommand
  * @license    LGPLv3
@@ -136,14 +137,21 @@ public class GachaCommand {
 			playerName = sender.getName();
 			/* 現在のお金を表示 */
 			/* エラー */
-			sender.sendMessage(String.format("You have %s", econ.format(econ.getBalance(player))));
+			sender.sendMessage(String.format("現在の現金 %s", econ.format(econ.getBalance(player))));
 			/* 現在のお金が1000以上あったら */
-
-			/* 現在のお金から1000引く */
-
-			/* 1000引いたぞのメッセージ表示 */
-
-			/* お金がなかったらメッセージを表示してリターン */
+			if( econ.has(player,1000)) {
+				EconomyResponse r = econ.withdrawPlayer(player, 1000);
+				if(r.transactionSuccess()) {
+	                sender.sendMessage(String.format("お買い上げありがとうございます！$1000頂きました！"));
+	            } else {
+	                sender.sendMessage(String.format("An error occured: %s", r.errorMessage));
+	                return false;
+	            }
+			}else {
+				sender.sendMessage(String.format("$1000持っていません！"));
+				return false;
+				
+			}
 
 			/*
 			 * 名前でチケットの受取は使わない Player player = gacha.getServer().getPlayer(playerName);

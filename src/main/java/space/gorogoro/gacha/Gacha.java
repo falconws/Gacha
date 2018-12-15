@@ -12,7 +12,6 @@ import java.util.logging.Logger;
 import org.apache.commons.io.IOUtils;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
-import org.bukkit.command.ConsoleCommandSender;
 import org.bukkit.event.HandlerList;
 import org.bukkit.plugin.PluginManager;
 import org.bukkit.plugin.RegisteredServiceProvider;
@@ -166,7 +165,7 @@ public class Gacha extends JavaPlugin{
           break;
           
         case "ticket":
-          if((sender instanceof ConsoleCommandSender) || sender.isOp()) {
+          if(sender.hasPermission("gacha.ticket")) {
             command.ticket(econ);
             hideUseageFlag = true;
           }
