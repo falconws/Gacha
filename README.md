@@ -1,6 +1,6 @@
 It's　Gache is fork
 プログラム勉強中・・・つД`)ｸﾞｽﾝ
-↓オリジナルとの変更点。/gacha ticket @p  で自分にチケットが$1000で発券できる。尚 /gacha ticket [name] は使えません。
+↓オリジナルとの変更点。/gacha ticket @p  で自分にチケットが$1000で発券できる。尚 /gacha ticket [name] はコンソールとOPのみ使えます。
 尚、経済の設定のため、EssensalX plugin　Vault plugin　が必要です。
 ```
 necessary
@@ -41,6 +41,7 @@ Note: It is recommended that you use a protection plug-in such as LWC or WorldGu
 /gacha modify <gacha_name> - Modify a gacha
 /gacha delete <gacha_name> - Delete a gacha
 /gacha ticket @p - Issue a ticket
+/gacha ticket <player name> - Issue a ticket
 ```
 
 # Permission
