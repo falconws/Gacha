@@ -6,9 +6,7 @@ import java.util.List;
 import org.bukkit.ChatColor;
 import org.bukkit.Material;
 import org.bukkit.command.CommandSender;
-import org.bukkit.command.ConsoleCommandSender;
 import org.bukkit.entity.Player;
-import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
 
@@ -21,12 +19,14 @@ import net.milkbowl.vault.economy.EconomyResponse;
  * @author     kubotan
  * @see        <a href="http://blog.gorogoro.space">Kubotan's blog.</a>
  */
+
 public class GachaCommand {
   private Gacha gacha;
   private CommandSender sender;
   private String[] args;
   protected static final String META_CHEST = "gacha.chest";
   protected static final String FORMAT_TICKET_CODE = "GACHA CODE:%s";
+  protected static final int TICKET_PRICE = 1000;
 
   /**
    * Constructor of GachaCommand.
@@ -133,51 +133,49 @@ public class GachaCommand {
 			return false;
 		}
 		Player player;
+		if (sender instanceof Player) {
+			player = (Player) sender;
+		} else {
+			// player でない場合は処理をしない
+			return false;
+		}
 		String playerName = args[1];
+		int playerSlot = player.getInventory().firstEmpty();
 		/* プレーヤ名が@pだったら */
 		if ("@p".equals(playerName)) {
-			player = (Player) sender;
 			playerName = sender.getName();
 
-			Inventory inv = player.getInventory();
-			int slot = inv.firstEmpty();
-			if ( slot == -1) { // 空のスロットがない
+			if (playerSlot == -1) { // 空のスロットがない
 				sender.sendMessage(String.format("エラー：イベントリを空けてください！"));
 				return false;
 			}
 
 			/* 現在のお金を表示 */
-			/* エラー */
 			sender.sendMessage(String.format("現在の現金 %s", econ.format(econ.getBalance(player))));
-			/* 現在のお金が1000以上あったら */
-			if( econ.has(player,1000)) {
-				EconomyResponse r = econ.withdrawPlayer(player, 1000);
-				if(r.transactionSuccess()) {
-	                sender.sendMessage(String.format("お買い上げありがとうございます！$1000頂きました！"));
-	            } else {
-	                sender.sendMessage(String.format("An error occured: %s", r.errorMessage));
-	                return false;
-	            }
-			}else {
-				sender.sendMessage(String.format("$1000持っていません！"));
+
+			if (econ.has(player, TICKET_PRICE)) {
+				EconomyResponse r = econ.withdrawPlayer(player, TICKET_PRICE);
+				if (r.transactionSuccess()) {
+					sender.sendMessage(String.format("お買い上げありがとうございます！$%s頂きました！", TICKET_PRICE));
+				} else {
+					sender.sendMessage(String.format("An error occured: %s", r.errorMessage));
+					return false;
+				}
+			} else {
+				sender.sendMessage(String.format("$%s持っていません！", TICKET_PRICE));
 				return false;
 
 			}
 		/* コンソールからだったらまたはOPからだったら */
-		}else if((sender instanceof ConsoleCommandSender) || sender.isOp()) {
-			if(args.length != 2) {
-			      return false;
-			    }
-
-			    playerName = args[1];
-			    player = gacha.getServer().getPlayer(playerName);
-			    if(player == null) {
-			      return false;
+		// 何も処理をしていない上にバグの元になるので一旦コメントアウト
+		/*
+		} else if ((sender instanceof ConsoleCommandSender) || sender.isOp()) {
+			player = gacha.getServer().getPlayer(playerName);
+			if (player == null) {
+				return false;
 			}
-			
-			
-			
-		}else {
+		*/
+		} else {
 			return false;
 		}
 		/*
@@ -185,12 +183,6 @@ public class GachaCommand {
 		 * if(player == null) { return false; }
 		 */
 		/* チケットの発券機能 */
-
-		int emptySlot = player.getInventory().firstEmpty();
-		if (emptySlot == -1) {
-			// not empty
-			return false;
-		}
 
 		String ticketCode = gacha.getDatabase().getTicket();
 		if (ticketCode == null) {
@@ -208,11 +200,9 @@ public class GachaCommand {
 		lore.add(String.format(FORMAT_TICKET_CODE, ticketCode));
 		im.setLore(lore);
 		ticket.setItemMeta(im);
-		player.getInventory().setItem(emptySlot, ticket);
-
+		player.getInventory().setItem(playerSlot, ticket);
 		GachaUtility.sendMessage(sender, "Issue a ticket. player_name=" + playerName);
 		return true;
-		
 	}
 
   /**

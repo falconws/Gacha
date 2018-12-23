@@ -4,6 +4,7 @@ import java.util.List;
 import java.util.Random;
 import java.util.regex.Pattern;
 
+import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.Location;
 import org.bukkit.Material;
@@ -165,8 +166,9 @@ public class GachaListener implements Listener{
       
       ItemStack sendItem = pickItem.clone();
       p.getInventory().addItem(sendItem);
-      GachaUtility.sendMessage(p, ChatColor.translateAlternateColorCodes('&', gacha.getConfig().getString("found-pick")));
-      
+      // GachaUtility.sendMessage(p, ChatColor.translateAlternateColorCodes('&', gacha.getConfig().getString("found-pick")));
+			Bukkit.getServer().broadcastMessage(
+					String.format("%sさんに%sが%s個当たりました！", p.getName(), sendItem.getType(), sendItem.getAmount()));
     } catch (Exception e){
       GachaUtility.logStackTrace(e);
     }
