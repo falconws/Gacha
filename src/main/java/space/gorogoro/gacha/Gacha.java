@@ -1,15 +1,9 @@
 package space.gorogoro.gacha;
 
 import java.io.File;
-import java.io.FileOutputStream;
-import java.io.InputStream;
-import java.io.OutputStream;
-import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
-import org.apache.commons.io.IOUtils;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
 import org.bukkit.event.HandlerList;
@@ -74,16 +68,9 @@ public class Gacha extends JavaPlugin{
 			}
 
 			// copy languge template
-			ArrayList<String> langFileNameList = new ArrayList<String>(Arrays.asList("config_jp.yml"
-			// ,"config_fr.yml" // add here language
-			));
-			for (String curFileName : langFileNameList) {
-				File configFileTemplate = new File(getDataFolder(), curFileName);
-				InputStream in = getResource(curFileName);
-				OutputStream out = new FileOutputStream(configFileTemplate);
-				IOUtils.copy(in, out);
-				out.close();
-				in.close();
+			File configFile2 = new File(getDataFolder(), "config_jp.yml");
+			if (!configFile2.exists()) {
+				saveDefaultConfig();
 			}
 
 			// Initialize the database.
@@ -102,7 +89,7 @@ public class Gacha extends JavaPlugin{
 		} catch (Exception e) {
 			GachaUtility.logStackTrace(e);
 		}
-		
+
 		/* setupEconomy */
 		if (!setupEconomy()) {
 			log.severe(String.format("[%s] - Disabled due to no Vault dependency found!", getDescription().getName()));
@@ -110,7 +97,7 @@ public class Gacha extends JavaPlugin{
 			return;
 		}
 	}
-  
+
 	private boolean setupEconomy() {
 		if (getServer().getPluginManager().getPlugin("Vault") == null) {
 			return false;
@@ -129,7 +116,7 @@ public class Gacha extends JavaPlugin{
 
   /**
    * JavaPlugin method onCommand.
-   * 
+   *
    * @return boolean true:Success false:Display the usage dialog set in plugin.yml
    */
   public boolean onCommand( CommandSender sender, Command commandInfo, String label, String[] args) {
@@ -138,12 +125,12 @@ public class Gacha extends JavaPlugin{
       if(!commandInfo.getName().equals("gacha")) {
         return hideUseageFlag;
       }
-      
+
       if(args.length <= 0) {
         return hideUseageFlag;
-      }        
+      }
       String subCommand = args[0];
-      
+
       command.initialize(sender, args);
       switch(subCommand) {
         case "list":
@@ -151,7 +138,7 @@ public class Gacha extends JavaPlugin{
             hideUseageFlag = command.list();
           }
           break;
-          
+
         case "modify":
           if(sender.hasPermission("gacha.modify")) {
             hideUseageFlag = command.modify();
@@ -163,7 +150,7 @@ public class Gacha extends JavaPlugin{
             hideUseageFlag = command.delete();
           }
           break;
-          
+
         case "ticket":
           if(sender.hasPermission("gacha.ticket")) {
             command.ticket(econ);
