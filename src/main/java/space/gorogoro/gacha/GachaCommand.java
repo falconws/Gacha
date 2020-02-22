@@ -12,6 +12,7 @@ import org.bukkit.inventory.meta.ItemMeta;
 
 import net.milkbowl.vault.economy.Economy;
 import net.milkbowl.vault.economy.EconomyResponse;
+
 /*
  * FrameGuardCommand
  * @license    LGPLv3
@@ -124,88 +125,78 @@ public class GachaCommand {
   }
 
   /**
-   * Processing of command ticket.
+   * Processing of ticket.
    * @return boolean true:Success false:Failure
    */
 	public boolean ticket(Economy econ) {
+        Player player = (Player) sender;
+        int playerSlot = player.getInventory().firstEmpty();
+        if (playerSlot == -1) { // 空のスロットがない
+            sender.sendMessage("エラー：インベントリを空けてください！");
+            return false;
+        }
 
-		if (args.length != 2) {
-			return false;
-		}
-		Player player;
-		if (sender instanceof Player) {
-			player = (Player) sender;
-		} else {
-			// player でない場合は処理をしない
-			return false;
-		}
-		String playerName = args[1];
-		int playerSlot = player.getInventory().firstEmpty();
-		/* プレーヤ名が@pだったら */
-		if ("@p".equals(playerName)) {
-			playerName = sender.getName();
+        if (!(payTicketPrice(econ, player))) {
+            return false;
+        }
 
-			if (playerSlot == -1) { // 空のスロットがない
-				sender.sendMessage(String.format("エラー：イベントリを空けてください！"));
-				return false;
-			}
+        return issueTicket(player, playerSlot);
+    }
 
-			/* 現在のお金を表示 */
-			sender.sendMessage(String.format("現在の現金 %s", econ.format(econ.getBalance(player))));
+    /**
+     * チケット代を支払う
+     * @param econ
+     * @param player
+     * @return boolean true: Success, false: Failure
+     */
+    private boolean payTicketPrice(Economy econ, Player player) {
+        sender.sendMessage(String.format("現在の現金 %s", econ.format(econ.getBalance(player))));
 
-			if (econ.has(player, TICKET_PRICE)) {
-				EconomyResponse r = econ.withdrawPlayer(player, TICKET_PRICE);
-				if (r.transactionSuccess()) {
-					sender.sendMessage(String.format("お買い上げありがとうございます！$%s頂きました！", TICKET_PRICE));
-				} else {
-					sender.sendMessage(String.format("An error occured: %s", r.errorMessage));
-					return false;
-				}
-			} else {
-				sender.sendMessage(String.format("$%s持っていません！", TICKET_PRICE));
-				return false;
+        if (!(econ.has(player, TICKET_PRICE))) {
+            sender.sendMessage(String.format("$%s持っていません！", TICKET_PRICE));
+            return false;
+        }
 
-			}
-		/* コンソールからだったらまたはOPからだったら */
-		// 何も処理をしていない上にバグの元になるので一旦コメントアウト
-		/*
-		} else if ((sender instanceof ConsoleCommandSender) || sender.isOp()) {
-			player = gacha.getServer().getPlayer(playerName);
-			if (player == null) {
-				return false;
-			}
-		*/
-		} else {
-			return false;
-		}
-		/*
-		 * 名前でチケットの受取は使わない Player player = gacha.getServer().getPlayer(playerName);
-		 * if(player == null) { return false; }
-		 */
-		/* チケットの発券機能 */
+        EconomyResponse r = econ.withdrawPlayer(player, TICKET_PRICE);
 
-		String ticketCode = gacha.getDatabase().getTicket();
-		if (ticketCode == null) {
-			GachaUtility.sendMessage(sender, "Failure generate ticket code.");
-			return false;
-		}
+        if (!(r.transactionSuccess())) {
+            sender.sendMessage(String.format("An error occurred: %s", r.errorMessage));
+            return false;
+        }
 
-		ItemStack ticket = new ItemStack(Material.PAPER, 1);
-		ItemMeta im = ticket.getItemMeta();
-		im.setDisplayName(
-				ChatColor.translateAlternateColorCodes('&', gacha.getConfig().getString("ticket-display-name")));
-		ArrayList<String> lore = new ArrayList<String>();
-		lore.add(ChatColor.translateAlternateColorCodes('&', gacha.getConfig().getString("ticket-lore1")));
-		lore.add(ChatColor.translateAlternateColorCodes('&', gacha.getConfig().getString("ticket-lore2")));
-		lore.add(String.format(FORMAT_TICKET_CODE, ticketCode));
-		im.setLore(lore);
-		ticket.setItemMeta(im);
-		player.getInventory().setItem(playerSlot, ticket);
-		GachaUtility.sendMessage(sender, "Issue a ticket. player_name=" + playerName);
-		return true;
-	}
+        sender.sendMessage(String.format("お買い上げありがとうございます！$%s頂きました！", TICKET_PRICE));
+        return true;
+    }
 
-  /**
+    /**
+     * チケットを発券する
+     * @param player
+     * @param playerSlot
+     * @return boolean
+     */
+    private boolean issueTicket(Player player, int playerSlot) {
+        String ticketCode = gacha.getDatabase().getTicket();
+        if (ticketCode == null) {
+            GachaUtility.sendMessage(sender, "Failure generate ticket code.");
+            return false;
+        }
+
+        ItemStack ticket = new ItemStack(Material.PAPER, 1);
+        ItemMeta im = ticket.getItemMeta();
+        im.setDisplayName(
+                ChatColor.translateAlternateColorCodes('&', gacha.getConfig().getString("ticket-display-name")));
+        ArrayList<String> lore = new ArrayList<String>();
+        lore.add(ChatColor.translateAlternateColorCodes('&', gacha.getConfig().getString("ticket-lore1")));
+        lore.add(ChatColor.translateAlternateColorCodes('&', gacha.getConfig().getString("ticket-lore2")));
+        lore.add(String.format(FORMAT_TICKET_CODE, ticketCode));
+        im.setLore(lore);
+        ticket.setItemMeta(im);
+        player.getInventory().setItem(playerSlot, ticket);
+        GachaUtility.sendMessage(sender, "Issue a ticket. player_name=" + sender.getName());
+        return true;
+    }
+
+    /**
    * Processing of command reload.
    * @return boolean true:Success false:Failure
    */
