@@ -9,6 +9,7 @@ import org.bukkit.ChatColor;
 import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.block.Block;
+import org.bukkit.block.BlockState;
 import org.bukkit.block.Chest;
 import org.bukkit.block.Sign;
 import org.bukkit.entity.EntityType;
@@ -40,6 +41,44 @@ public class GachaListener implements Listener{
       this.gacha = gacha;
     } catch (Exception e){
       GachaUtility.logStackTrace(e);
+    }
+  }
+
+  /**
+   * チケット発行看板
+   * 看板の1行目に[ticket]の文字列がある看板が作成された際の処理
+   * @param event SignChangeEvent
+   */
+  @EventHandler(priority = EventPriority.HIGHEST)
+  public void onTicketSignBoard(SignChangeEvent event) {
+    if(!event.getLine(0).toLowerCase().equals("[ticket]")) {
+      return;
+    }
+
+    event.setLine(0, ChatColor.translateAlternateColorCodes(
+            '&', gacha.getConfig().getString("sign-line1-prefix") + event.getLine(0)));
+
+  }
+
+  /**
+   * プレイヤーが1行目に[ticket]の文字列がある看板を右クリックした際の処理
+   * @param event PlayerInteractEvent
+   */
+  @EventHandler(priority = EventPriority.HIGHEST)
+  public void onRightClick(PlayerInteractEvent event) {
+    if (!event.getAction().equals(Action.RIGHT_CLICK_BLOCK)) {
+      return;
+    }
+    Block clickedBlock = event.getClickedBlock();
+    Material material = clickedBlock.getType();
+    if (material.equals(Material.OAK_SIGN) || material.equals(Material.OAK_WALL_SIGN)) {
+      BlockState state = clickedBlock.getState();
+      Sign sign = (Sign) state;
+      // @TODO [ticket]が1行目にある看板限定だが、先頭にカラーコードがついているのでこのような暫定コード。もっとマシにリファクタリングすべき。
+      if (sign.getLine(0).equals("§6§l[ticket]")) {
+        GachaCommand command = gacha.getCommand();
+        command.ticket(Gacha.getEconomy(), event.getPlayer());
+      }
     }
   }
 

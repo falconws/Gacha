@@ -31,7 +31,7 @@ public class GachaCommand {
 
   /**
    * Constructor of GachaCommand.
-   * @param Gacha gacha
+   * @param gacha Gacha instance
    */
 	public GachaCommand(Gacha gacha) {
 		try {
@@ -43,8 +43,8 @@ public class GachaCommand {
 
   /**
    * Initialize
-   * @param CommandSender CommandSender
-   * @param String[] Argument
+   * @param sender CommandSender instance
+   * @param args /gacha 以降のマインクラフト内コマンド引数
    */
   public void initialize(CommandSender sender, String[] args){
     try{
@@ -102,7 +102,7 @@ public class GachaCommand {
       GachaUtility.sendMessage(sender, "Record not found. gacha_name=" + gachaName);
       return true;
     }
-    GachaUtility.setPunch((Player)sender, gacha, gachaName);
+    GachaUtility.setPunch((Player) sender, gacha, gachaName);
     GachaUtility.sendMessage(sender, "Please punching(right click) a chest of gachagacha. gacha_name=" + gachaName);
     return true;
   }
@@ -118,7 +118,7 @@ public class GachaCommand {
 
     String gachaName = args[1];
     if(gacha.getDatabase().deleteGacha(gachaName)) {
-      GachaUtility.sendMessage(sender, "Deleted. gacha_name=" + gachaName);
+      GachaUtility.sendMessage(sender, "Deleted. gacha_name = " + gachaName);
       return true;
     }
     return false;
@@ -126,13 +126,13 @@ public class GachaCommand {
 
   /**
    * Processing of ticket.
+   * @param econ Economy instance
+   * @param player Player instance
    * @return boolean true:Success false:Failure
    */
-	public boolean ticket(Economy econ) {
-        Player player = (Player) sender;
-        int playerSlot = player.getInventory().firstEmpty();
-        if (playerSlot == -1) { // 空のスロットがない
-            sender.sendMessage("エラー：インベントリを空けてください！");
+	public boolean ticket(Economy econ, Player player) {
+        if (player.getInventory().firstEmpty() == -1) { // 空のスロットがない
+            player.sendMessage("エラー：インベントリを空けてください！");
             return false;
         }
 
@@ -140,44 +140,43 @@ public class GachaCommand {
             return false;
         }
 
-        return issueTicket(player, playerSlot);
+        return issueTicket(player);
     }
 
     /**
      * チケット代を支払う
-     * @param econ
-     * @param player
+     * @param econ Economy instance
+     * @param player Player instance
      * @return boolean true: Success, false: Failure
      */
     private boolean payTicketPrice(Economy econ, Player player) {
-        sender.sendMessage(String.format("現在の現金 %s", econ.format(econ.getBalance(player))));
+        player.sendMessage(String.format("現在の現金 %s", econ.format(econ.getBalance(player))));
 
         if (!(econ.has(player, TICKET_PRICE))) {
-            sender.sendMessage(String.format("$%s持っていません！", TICKET_PRICE));
+            player.sendMessage(String.format("$%s持っていません！", TICKET_PRICE));
             return false;
         }
 
         EconomyResponse r = econ.withdrawPlayer(player, TICKET_PRICE);
 
         if (!(r.transactionSuccess())) {
-            sender.sendMessage(String.format("An error occurred: %s", r.errorMessage));
+            player.sendMessage(String.format("An error occurred: %s", r.errorMessage));
             return false;
         }
 
-        sender.sendMessage(String.format("お買い上げありがとうございます！$%s頂きました！", TICKET_PRICE));
+        player.sendMessage(String.format("お買い上げありがとうございます！$%s頂きました！", TICKET_PRICE));
         return true;
     }
 
     /**
      * チケットを発券する
-     * @param player
-     * @param playerSlot
+     * @param player Player instance
      * @return boolean
      */
-    private boolean issueTicket(Player player, int playerSlot) {
+    private boolean issueTicket(Player player) {
         String ticketCode = gacha.getDatabase().getTicket();
         if (ticketCode == null) {
-            GachaUtility.sendMessage(sender, "Failure generate ticket code.");
+            GachaUtility.sendMessage(player, "Failure generate ticket code.");
             return false;
         }
 
@@ -191,8 +190,8 @@ public class GachaCommand {
         lore.add(String.format(FORMAT_TICKET_CODE, ticketCode));
         im.setLore(lore);
         ticket.setItemMeta(im);
-        player.getInventory().setItem(playerSlot, ticket);
-        GachaUtility.sendMessage(sender, "Issue a ticket. player_name=" + sender.getName());
+        player.getInventory().setItem(player.getInventory().firstEmpty(), ticket);
+        GachaUtility.sendMessage(player, "Issue a ticket. player_name = " + player.getName());
         return true;
     }
 
